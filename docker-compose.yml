@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  postgresql: #Database
+    image: postgres:14.1-alpine 
+    container_name: postgresql_container
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB= postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+  pgadmin:  #Client for Postgresql
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+  redis:  # Cache
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning  # --requirepass p4$$w0rd
+    volumes: 
+      - redis:/var/lib/data
+
+  mongodb: # Personal Mongo db
+    image : mongo
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_DATABASE=ats
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - mongodb:/data/mongo-db
+    ports:
+    - 27099:27017
+    restart: unless-stopped
+volumes:
+  db:
+    driver: local
+  redis:
+    driver: local
+  pgadmin-data:
+  mongodb:
